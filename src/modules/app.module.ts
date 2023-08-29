@@ -3,9 +3,11 @@ import { AppController } from '../controllers/app.controller';
 import { AppService } from '../services/app.service';
 import { KnexModule } from './knex';
 import { TestModule } from './test';
-import { RouterModule } from '@nestjs/core';
+import { APP_INTERCEPTOR, RouterModule } from '@nestjs/core';
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
+import { TransformInterceptor } from 'src/interceptors/transform';
+import { ErrorInterceptor } from 'src/interceptors/error';
 
 @Module({
   imports: [
@@ -39,6 +41,13 @@ import * as Joi from 'joi';
     ])
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, {
+    provide: APP_INTERCEPTOR,
+    useClass: TransformInterceptor,
+  },
+  {
+    provide: APP_INTERCEPTOR,
+    useClass: ErrorInterceptor,
+  }],
 })
 export class AppModule {}
